@@ -12,7 +12,7 @@ const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         // المسار الجديد اللي راح نجربه مع المكتبات
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
+      executablePath: '/usr/bin/chromium',
         headless: true,
         args: [
             '--no-sandbox',
@@ -21,14 +21,14 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process', // يقلل استهلاك الرام جداً
+            '--single-process',
             '--disable-gpu',
             '--disable-extensions'
         ]
     }
 });
 
-// توليد الـ QR Code في السجلات (Logs)
+// توليد الـ QR Code في السجلات
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
     console.log('QR RECEIVED', qr);
@@ -42,12 +42,12 @@ client.on('ready', () => {
 // تشغيل العميل
 client.initialize();
 
-// إعداد منفذ السيرفر لـ Railway
+// إعداد منفذ السيرفر
 const PORT = process.env.PORT || 8080;
-
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 // إضافة راوت بسيط للتأكد من عمل السيرفر
 app.get('/', (req, res) => {
     res.send('WhatsApp Bot is Running!');
