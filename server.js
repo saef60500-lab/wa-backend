@@ -11,19 +11,13 @@ app.use(express.json());
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        // المسار الجديد اللي راح نجربه مع المكتبات
-      executablePath: '/usr/bin/chromium',
+     executablePath: require('puppeteer').executablePath(),
         headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--disable-gpu',
-            '--disable-extensions'
+            '--single-process'
         ]
     }
 });
