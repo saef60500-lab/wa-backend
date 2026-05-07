@@ -7,10 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// إعدادات العميل مع المسارات المحسنة للسيرفر
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+        // المسار الجديد اللي راح نجربه مع المكتبات
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
         headless: true,
         args: [
             '--no-sandbox',
@@ -19,42 +21,34 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process',
+            '--single-process', // يقلل استهلاك الرام جداً
             '--disable-gpu',
             '--disable-extensions'
         ]
     }
 });
 
+// توليد الـ QR Code في السجلات (Logs)
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
-    console.log('QR Code ready for scan...');
+    console.log('QR RECEIVED', qr);
 });
 
+// عند نجاح الاتصال
 client.on('ready', () => {
-    console.log('✅ Server is Ready and WhatsApp Connected!');
+    console.log('Client is ready!');
 });
 
-// استلام الطلب من الواجهة
-app.post('/send-message', async (req, res) => {
-    const { phone, message } = req.body;
-    
-    console.log('📩 Received phone:', phone);
-    console.log('📝 Received message:', message);
-
-    try {
-        const formattedPhone = phone.includes('@c.us') ? phone : `${phone}@c.us`;
-        await client.sendMessage(formattedPhone, message);
-        console.log('🚀 Message sent successfully!');
-        res.json({ success: true });
-    } catch (error) {
-        console.error('❌ Error:', error.message);
-        res.json({ success: false, error: error.message });
-    }
-});
-
+// تشغيل العميل
 client.initialize();
-const PORT = process.env.PORT || 5000;
+
+// إعداد منفذ السيرفر لـ Railway
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(Server running on port ${PORT});
+});
+
+// إضافة راوت بسيط للتأكد من عمل السيرفر
+app.get('/', (req, res) => {
+    res.send('WhatsApp Bot is Running!');
 });
