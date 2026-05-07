@@ -46,7 +46,7 @@ client.initialize();
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-    console.log(Server running on port ${PORT});
+    console.log(`Server running on port ${PORT}`);
 });
 // إضافة راوت بسيط للتأكد من عمل السيرفر
 app.get('/', (req, res) => {
