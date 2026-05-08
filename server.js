@@ -11,7 +11,7 @@ app.use(express.json());
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-     executablePath: require('puppeteer').executablePath(),
+    executablePath: '/usr/bin/chromium-browser',
         headless: true,
         args: [
             '--no-sandbox',
