@@ -1,0 +1,36 @@
+{
+  "name": "WA Scheduler Pro — Taha Alajele",
+  "short_name": "WA Scheduler",
+  "description": "جدولة رسائل واتساب جماعية تلقائية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030a04",
+  "theme_color": "#25d366",
+  "orientation": "portrait-primary",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://api.iconify.design/emojione:mobile-phone.svg?width=192&height=192",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://api.iconify.design/emojione:mobile-phone.svg?width=512&height=512",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "إرسال رسالة",
+      "short_name": "إرسال",
+      "url": "/?tab=message",
+      "icons": [{"src": "https://api.iconify.design/emojione:envelope.svg", "sizes": "96x96"}]
+    }
+  ]
+}
