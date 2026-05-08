@@ -2,6 +2,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const express = require('express');
 const cors = require('cors');
+const puppeteer = require('puppeteer');
 
 const app = express();
 app.use(cors());
@@ -10,12 +11,16 @@ app.use(express.json());
 let currentQR = null;
 let isClientReady = false;
 
+// الحصول على مسار Chromium من puppeteer تلقائياً
+const chromiumPath = puppeteer.executablePath();
+console.log('Chromium path:', chromiumPath);
+
 const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: './.wwebjs_auth'
     }),
     puppeteer: {
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+        executablePath: chromiumPath,
         headless: true,
         args: [
             '--no-sandbox',
@@ -85,6 +90,20 @@ app.get('/status', (req, res) => {
         ready: isClientReady,
         hasQR: currentQR !== null
     });
+});
+
+app.post('/send-message', async (req, res) => {
+    const { phone, message } = req.body;
+    if (!isClientReady) {
+        return res.json({ success: false, error: 'Client not ready' });
+    }
+    try {
+        const chatId = phone.replace(/[^0-9]/g, '') + '@c.us';
+        await client.sendMessage(chatId, message);
+        res.json({ success: true });
+    } catch (err) {
+        res.json({ success: false, error: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 8080;
