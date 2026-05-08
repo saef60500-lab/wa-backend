@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "chromium"]
+nixPkgs = ["nodejs_20", "google-chrome"]
 
 [phases.install]
 cmds = ["npm install"]
 
 [start]
-cmd = "PUPPETEER_EXECUTABLE_PATH=$(which chromium) node server.js"
+cmd = "node server.js"
