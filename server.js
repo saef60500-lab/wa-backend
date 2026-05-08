@@ -3,7 +3,7 @@ const qrcode = require('qrcode-terminal');
 const express = require('express');
 const cors = require('cors');
 const puppeteer = require('puppeteer');
-
+const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
