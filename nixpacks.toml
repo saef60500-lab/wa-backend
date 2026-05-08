@@ -1,23 +1,8 @@
 [phases.setup]
-nixPkgs = ["nodejs", "chromium", "glib"]
-aptPkgs = [
-    "libnss3",
-    "libatk1.0-0",
-    "libatk-bridge2.0-0",
-    "libcups2",
-    "libdrm2",
-    "libxkbcommon0",
-    "libxcomposite1",
-    "libxdamage1",
-    "libxrandr2",
-    "libgbm1",
-    "libasound2",
-    "libpango-1.0-0",
-    "libcairo2"
-]
+nixPkgs = ["nodejs", "chromium", "glib", "nss", "nspr", "atk", "at-spi2-atk", "libdrm", "expat", "libxcb", "libxshmfence", "libX11", "libXcomposite", "libXdamage", "libXext", "libXfixes", "libXrandr", "libgbm", "pango", "cairo", "asound"]
 
 [phases.build]
 cmds = ["npm install"]
 
-[phases.start]
+[start]
 cmd = "node server.js"
