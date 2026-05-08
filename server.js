@@ -69,9 +69,12 @@ client.initialize().catch(err => {
     console.error('Failed to initialize:', err);
 });
 
+const path = require('path');
+
+app.use(express.static(__dirname));
+
 app.get('/', (req, res) => {
-    const html = '<html><body><h1>WhatsApp Bot</h1><p>Status: ' + (isClientReady ? 'Connected' : 'Connecting') + '</p><p><a href="/qr">View QR</a></p></body></html>';
-    res.send(html);
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/qr', (req, res) => {
