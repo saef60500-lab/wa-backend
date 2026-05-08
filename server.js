@@ -12,7 +12,7 @@ let currentQR = null;
 let isClientReady = false;
 
 // الحصول على مسار Chromium من puppeteer تلقائياً
-const chromiumPath = process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath();
+const chromiumPath = puppeteer.executablePath();
 console.log('Chromium path:', chromiumPath);
 
 const client = new Client({
