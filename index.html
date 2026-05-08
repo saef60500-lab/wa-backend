@@ -1,200 +1,644 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Multi-Session</title>
-    <style>
-        :root {
-            --green: #25D366;
-            --dark-bg: #0b141a;
-            --card-bg: #111b21;
-            --text-main: #e9edef;
-            --text-muted: #8696a0;
-            --border: #222d34;
-            --yellow: #f0b429;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        h1 { color: var(--green); text-align: center; }
-        .status-banner {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
-        input, textarea, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: #2a3942;
-            color: white;
-            box-sizing: border-box;
-        }
-        button {
-            background: var(--green);
-            color: var(--dark-bg);
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-        }
-        button:hover { opacity: 0.9; }
-        #qr-container { text-align: center; padding: 20px; border: 1px dashed var(--border); margin: 10px 0; }
-        #qr-img { width: 250px; height: 250px; margin: 10px auto; display: none; }
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { background: #202c33; color: var(--text-muted); }
-        .tab-btn.active { background: var(--green); color: var(--dark-bg); }
-        .page { display: none; }
-        .page.active { display: block; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WA Scheduler Pro — Taha Alajele</title>
+
+<!-- PWA Meta Tags -->
+<meta name="theme-color" content="#030a04"/>
+<meta name="description" content="جدولة رسائل واتساب جماعية تلقائية"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="WA Scheduler"/>
+<link rel="manifest" href="manifest.json"/>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#25d366;--green2:#128C7E;--green3:#075E54;
+  --bg:#030a04;--card:#0f1c12;--border:rgba(37,211,102,0.15);
+  --text:#e8fef0;--muted:#4a7a5a;--dim:#2d5a3a;
+  --red:#e05252;--yellow:#f0b429;
+}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s ease;}
+#splash.hide{opacity:0;pointer-events:none;}
+.particle{position:absolute;border-radius:50%;animation:pdrift var(--dur) ease-in-out infinite var(--delay);}
+@keyframes pdrift{0%,100%{transform:translate(0,0) scale(1);opacity:.5;}50%{transform:translate(var(--dx),var(--dy)) scale(1.7);opacity:1;}}
+@keyframes ringExp{0%{transform:scale(.3);opacity:.8;}100%{transform:scale(3);opacity:0;}}
+.splash-ring{position:absolute;width:140px;height:140px;border-radius:50%;border:1.5px solid rgba(37,211,102,.45);animation:ringExp 2.6s ease-out infinite;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes spinR{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+.orbit1{position:absolute;width:240px;height:240px;border-radius:50%;border:1px dashed rgba(37,211,102,.18);animation:spin 9s linear infinite;}
+.orbit2{position:absolute;width:300px;height:300px;border-radius:50%;border:1px dashed rgba(18,140,126,.12);animation:spinR 14s linear infinite;}
+@keyframes namePulse{0%,100%{text-shadow:0 0 20px #25d36680,0 0 60px #25d36630;}50%{text-shadow:0 0 50px #25d366cc,0 0 120px #25d36660;}}
+@keyframes shimmer{0%{background-position:-300% center;}100%{background-position:300% center;}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes iconPop{0%{transform:scale(0) rotate(-30deg);opacity:0;}70%{transform:scale(1.15) rotate(4deg);opacity:1;}100%{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes logoAnim{0%{transform:scale(.3) rotate(-20deg);opacity:0;}80%{transform:scale(1.1) rotate(3deg);opacity:1;}100%{transform:scale(1) rotate(0);opacity:1;}}
+.splash-name span{display:inline-block;font-family:'Cinzel Decorative',serif;font-weight:900;font-size:36px;color:#e8fef0;transition:transform .6s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;}
+.splash-name span.space{font-size:14px;}
+.splash-shimmer{width:260px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--green),#75ffb0,var(--green),transparent);background-size:300% 100%;animation:shimmer 1.8s linear infinite;margin:12px 0;}
+.splash-sub{font-size:12px;font-weight:700;color:#3a6a48;letter-spacing:4px;text-transform:uppercase;animation:slideUp .6s ease both;}
+.splash-contact{display:flex;align-items:center;gap:14px;padding:13px 26px;border-radius:20px;min-width:220px;animation:iconPop .55s cubic-bezier(.34,1.56,.64,1) both;margin-top:8px;}
+.splash-contact.ig{background:linear-gradient(135deg,rgba(193,53,132,.14),rgba(88,81,219,.14));border:1px solid rgba(193,53,132,.28);}
+.splash-contact.wa{background:linear-gradient(135deg,rgba(37,211,102,.12),rgba(18,140,126,.12));border:1px solid rgba(37,211,102,.24);}
+.splash-contact .lbl{font-size:10px;color:#666;font-family:Cairo;margin-bottom:2px;}
+.splash-contact .val{font-size:17px;font-weight:900;font-family:Cairo;color:#fff;letter-spacing:1px;}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(37,211,102,.35),transparent);animation:scan 3.5s ease-in-out infinite;}
+@keyframes scan{0%{top:-10%;opacity:.6;}100%{top:110%;opacity:0;}}
+.splash-copy{position:absolute;bottom:28px;font-family:Cairo;font-size:11px;color:rgba(37,211,102,.28);letter-spacing:2px;}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;background:linear-gradient(160deg,#050d07,#081209 40%,#040b06);align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;}
+#app.show{display:flex;}
+.fp{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(37,211,102,.15);animation:floatUp var(--dur) ease-in-out infinite var(--delay);}
+@keyframes floatUp{0%,100%{transform:translateY(0) scale(1);opacity:.4;}50%{transform:translateY(-30px) scale(1.4);opacity:.9;}}
+
+.card{background:rgba(15,28,18,.95);border:1px solid var(--border);border-radius:28px;width:100%;max-width:520px;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px rgba(37,211,102,.08);position:relative;overflow:hidden;animation:appIn .7s ease both;}
+@keyframes appIn{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:scale(1);}}
+.card-glow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 30% at 50% 0%,rgba(37,211,102,.07),transparent 70%);pointer-events:none;}
+
+/* Header */
+.header{padding:26px 28px 18px;text-align:center;border-bottom:1px solid rgba(37,211,102,.1);}
+.pulse-wrap{display:inline-flex;align-items:center;justify-content:center;position:relative;width:56px;height:56px;}
+.pulse-ring{position:absolute;border-radius:50%;border:2px solid var(--green);width:56px;height:56px;opacity:0;animation:pRing 2s ease-out infinite;}
+@keyframes pRing{0%{transform:scale(.8);opacity:.8;}100%{transform:scale(2.2);opacity:0;}}
+.header-title{font-size:21px;font-weight:900;color:var(--text);margin-top:10px;}
+.header-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* Status banner */
+.status-banner{margin:10px 18px 0;padding:8px 14px;border-radius:12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:blinkDot 1.5s ease infinite;}
+@keyframes blinkDot{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;padding:14px 18px 0;}
+.tab-btn{flex:1;padding:9px 0;border-radius:13px;border:none;font-family:Cairo;font-size:12px;font-weight:700;cursor:pointer;transition:all .25s;}
+.tab-btn.active{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 4px 16px rgba(37,211,102,.35);}
+.tab-btn:not(.active){background:rgba(37,211,102,.06);color:var(--muted);}
+.tab-btn:not(.active):hover{background:rgba(37,211,102,.12);color:var(--green);}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;background:var(--green);color:#fff;font-size:10px;font-weight:900;padding:0 5px;margin-right:4px;}
+
+/* Panel */
+.panel{padding:18px;animation:fadeIn .35s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.sec-label{font-size:11px;font-weight:700;color:var(--green);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.inp-row{display:flex;gap:8px;margin-bottom:9px;}
+.inp{flex:1;padding:10px 13px;border-radius:12px;border:1.5px solid rgba(37,211,102,.15);background:rgba(37,211,102,.04);color:#d4f5dc;font-family:Cairo;font-size:13px;outline:none;transition:border .2s,box-shadow .2s;direction:rtl;}
+.inp:focus{border-color:rgba(37,211,102,.5);box-shadow:0 0 0 3px rgba(37,211,102,.08);}
+.inp::placeholder{color:var(--dim);}
+.btn-add{padding:10px 15px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#1ab859);color:#fff;font-family:Cairo;font-weight:700;font-size:13px;cursor:pointer;transition:transform .15s;white-space:nowrap;}
+.btn-add:hover{transform:scale(1.04);}
+
+/* Contacts list */
+.contacts-list{max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;}
+.contacts-list::-webkit-scrollbar{width:4px;}
+.contacts-list::-webkit-scrollbar-thumb{background:rgba(37,211,102,.2);border-radius:4px;}
+.contact-item{display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:13px;background:rgba(37,211,102,.05);border:1px solid rgba(37,211,102,.1);animation:fadeIn .3s ease both;transition:background .2s;}
+.contact-item:hover{background:rgba(37,211,102,.09);}
+.avatar{width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;}
+.contact-info{flex:1;min-width:0;}
+.contact-name{font-size:13px;font-weight:700;color:#c8f0d4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.contact-phone{font-size:11px;color:var(--muted);direction:ltr;text-align:right;}
+.btn-remove{width:28px;height:28px;border-radius:8px;border:none;background:rgba(224,82,82,.1);color:var(--red);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;flex-shrink:0;}
+.btn-remove:hover{background:rgba(224,82,82,.2);transform:scale(1.1);}
+.empty-state{text-align:center;padding:28px 0;color:var(--dim);font-size:13px;}
+
+/* QR */
+.qr-section{margin-top:14px;padding:14px;border-radius:14px;background:rgba(37,211,102,.04);border:1px solid rgba(37,211,102,.12);text-align:center;}
+.qr-section img{max-width:180px;border-radius:10px;margin:10px auto;display:block;}
+.qr-refresh{margin-top:8px;padding:8px 20px;border-radius:10px;border:none;background:rgba(37,211,102,.12);color:var(--green);font-family:Cairo;font-weight:700;font-size:12px;cursor:pointer;}
+.qr-refresh:hover{background:rgba(37,211,102,.2);}
+
+/* Message */
+.msg-textarea{width:100%;min-height:100px;padding:13px;border-radius:13px;border:1.5px solid rgba(37,211,102,.15);background:rgba(37,211,102,.04);color:#d4f5dc;font-family:Cairo;font-size:13px;resize:none;outline:none;transition:border .2s;direction:rtl;line-height:1.6;}
+.msg-textarea:focus{border-color:rgba(37,211,102,.5);box-shadow:0 0 0 3px rgba(37,211,102,.08);}
+.msg-textarea::placeholder{color:var(--dim);}
+.char-count{font-size:11px;color:var(--dim);text-align:left;margin-top:4px;}
+
+/* Schedule */
+.sched-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sched-group label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px;}
+.stats-row{display:flex;gap:8px;margin-bottom:14px;}
+.stat-box{flex:1;padding:11px;border-radius:13px;text-align:center;border:1px solid rgba(37,211,102,.1);background:rgba(37,211,102,.04);}
+.stat-val{font-size:21px;font-weight:900;color:var(--green);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.countdown-box{background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.2);border-radius:15px;padding:13px;text-align:center;margin-bottom:13px;animation:cPulse 1s ease infinite;}
+@keyframes cPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+.countdown-time{font-size:27px;font-weight:900;color:var(--green);letter-spacing:3px;}
+.countdown-lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* Buttons */
+.btn-main{width:100%;padding:13px;border-radius:15px;border:none;font-family:Cairo;font-size:15px;font-weight:900;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-main.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 6px 24px rgba(37,211,102,.35);animation:glow 2.5s ease infinite;}
+@keyframes glow{0%,100%{box-shadow:0 0 12px #25d36633;}50%{box-shadow:0 0 28px #25d36688,0 0 50px #25d36622;}}
+.btn-main.primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,211,102,.5);}
+.btn-main.danger{background:rgba(224,82,82,.1);color:var(--red);border:1px solid rgba(224,82,82,.2);}
+
+/* Logs */
+.logs-list{max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:13px;}
+.log-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;font-size:12px;animation:fadeIn .3s ease both;}
+.log-item.sent{background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.15);color:#a8e6ba;}
+.log-item.failed{background:rgba(224,82,82,.07);border:1px solid rgba(224,82,82,.15);color:#f5a0a0;}
+.log-item.pending{background:rgba(240,180,41,.07);border:1px solid rgba(240,180,41,.15);color:#f0d080;}
+
+/* Sending dots */
+.dots{display:flex;align-items:center;gap:4px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bounce 1.2s ease infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1.2);opacity:1;}}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:13px 26px;border-radius:20px;font-family:Cairo;font-weight:700;font-size:14px;z-index:9998;animation:toastPop .5s ease both;white-space:nowrap;}
+.toast.success{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 10px 40px rgba(37,211,102,.5);}
+.toast.error{background:linear-gradient(135deg,#e05252,#a02020);color:#fff;box-shadow:0 10px 40px rgba(224,82,82,.5);}
+@keyframes toastPop{0%{transform:translateX(-50%) scale(.5) translateY(40px);opacity:0;}70%{transform:translateX(-50%) scale(1.05) translateY(-4px);opacity:1;}100%{transform:translateX(-50%) scale(1) translateY(0);opacity:1;}}
+
+/* Footer */
+.app-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-top:1px solid rgba(37,211,102,.08);background:rgba(0,0,0,.2);}
+.footer-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#3a6a48;}
+.footer-item strong{color:var(--green);font-size:12px;}
+
+/* Install banner */
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(15,28,18,.98),rgba(7,20,10,.98));border-top:1px solid rgba(37,211,102,.25);padding:16px 20px;z-index:8888;backdrop-filter:blur(16px);animation:slideUp2 .4s ease both;}
+@keyframes slideUp2{from{transform:translateY(100%);}to{transform:translateY(0);}}
+#install-banner.show{display:flex;align-items:center;gap:14px;}
+.install-icon{font-size:32px;flex-shrink:0;}
+.install-text{flex:1;}
+.install-text strong{display:block;font-size:15px;color:var(--text);}
+.install-text span{font-size:12px;color:var(--muted);}
+.btn-install{padding:10px 22px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-family:Cairo;font-weight:900;font-size:13px;cursor:pointer;white-space:nowrap;}
+.btn-dismiss{padding:10px 14px;border-radius:14px;border:none;background:transparent;color:var(--muted);font-family:Cairo;font-size:20px;cursor:pointer;}
+
+@media(max-width:480px){
+  .card{border-radius:20px;}
+  .sched-grid{grid-template-columns:1fr;}
+  .splash-name span{font-size:28px;}
+}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h1>مُرسل واتساب الذكي</h1>
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <div id="particles-splash"></div>
+  <div class="scan-line"></div>
 
-    <div id="status-banner" class="status-banner" style="background: rgba(255,255,255,0.05);">
-        <div class="status-dot" style="background: gray;"></div>
-        <span id="status-text">جارٍ التحقق من السيرفر...</span>
+  <div class="orbit1"></div>
+  <div class="orbit2"></div>
+  <div id="splash-rings"></div>
+
+  <div id="logo-icon" style="font-size:44px;margin-bottom:16px;filter:drop-shadow(0 0 18px #25d36688);animation:logoAnim .8s cubic-bezier(.34,1.56,.64,1) both;">📲</div>
+
+  <div class="splash-name" id="splash-name" style="display:flex;flex-wrap:wrap;justify-content:center;gap:1px;margin-bottom:6px;"></div>
+
+  <div id="splash-shimmer" style="display:none;" class="splash-shimmer"></div>
+  <div id="splash-sub" style="display:none;" class="splash-sub">WA Scheduler Pro</div>
+
+  <div id="splash-contacts" style="display:none;display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:18px;opacity:0;transition:opacity .5s;">
+    <div class="splash-contact ig">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="igG" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" stroke="url(#igG)" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="4.5" stroke="url(#igG)" stroke-width="1.8" fill="none"/><circle cx="17.5" cy="6.5" r="1.1" fill="url(#igG)"/></svg>
+      <div><div class="lbl">Instagram</div><div class="val">Ti.9m</div></div>
+    </div>
+    <div class="splash-contact wa">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" stroke="#25d366" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><div class="lbl">رقم الاتصال</div><div class="val" style="direction:ltr;">07716692739</div></div>
+    </div>
+  </div>
+
+  <div class="splash-copy">© 2025 Taha Alajele — All rights reserved</div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div id="particles-app"></div>
+
+  <div class="card">
+    <div class="card-glow"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="pulse-wrap">
+        <div class="pulse-ring" style="animation-delay:0s"></div>
+        <div class="pulse-ring" style="animation-delay:.6s"></div>
+        <div class="pulse-ring" style="animation-delay:1.2s"></div>
+        <span style="font-size:27px;">📲</span>
+      </div>
+      <div class="header-title">WhatsApp Scheduler Pro</div>
+      <div class="header-sub">جدولة رسائل جماعية تلقائية بدون تدخل</div>
     </div>
 
-    <div class="tab-buttons">
-        <button class="tab-btn active" onclick="showPage('send-page', this)">إرسال رسائل</button>
-        <button class="tab-btn" onclick="showPage('qr-page', this)">ربط واتساب (QR)</button>
+    <!-- Server Status Banner -->
+    <div id="status-banner" class="status-banner" style="background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);">
+      <div class="status-dot" style="background:var(--yellow);"></div>
+      <span id="status-text" style="color:var(--yellow);">جارٍ الاتصال بالسيرفر...</span>
     </div>
 
-    <div id="send-page" class="page active">
-        <label>الأرقام (رقم في كل سطر مع مفتاح الدولة):</label>
-        <textarea id="numbers-input" rows="5" placeholder="9647XXXXXXXX"></textarea>
-        
-        <label>الرسالة:</label>
-        <textarea id="message-input" rows="3" placeholder="اكتب رسالتك هنا..."></textarea>
-        
-        <button onclick="sendBulk()">بدء الإرسال الجماعي</button>
-        <div id="logs" style="margin-top: 15px; font-size: 0.9em; color: var(--text-muted);"></div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('contacts',this)">👥 جهات الاتصال <span class="badge" id="cnt-badge">0</span></button>
+      <button class="tab-btn" onclick="switchTab('message',this)">✉️ الرسالة</button>
+      <button class="tab-btn" onclick="switchTab('schedule',this)">⏰ الجدولة</button>
+      <button class="tab-btn" onclick="switchTab('qr',this)">📷 QR</button>
     </div>
 
-    <div id="qr-page" class="page">
-        <div id="qr-container">
-            <p id="qr-status-text">اضغط على تحديث لجلب كود QR</p>
-            <img id="qr-img" src="" alt="WhatsApp QR Code">
-            <button onclick="loadQR()" style="background: #202c33; color: white;">تحديث كود QR</button>
-        </div>
+    <!-- TAB: Contacts -->
+    <div id="tab-contacts" class="panel">
+      <div class="sec-label">➕ إضافة جهة اتصال</div>
+      <div class="inp-row">
+        <input class="inp" id="new-name" placeholder="الاسم (اختياري)" onkeydown="if(event.key==='Enter')addContact()"/>
+      </div>
+      <div class="inp-row">
+        <input class="inp" id="new-phone" placeholder="+9647701234567" style="direction:ltr;" onkeydown="if(event.key==='Enter')addContact()"/>
+        <button class="btn-add" onclick="addContact()">➕ إضافة</button>
+      </div>
+      <div class="sec-label" style="margin-top:14px;">👥 قائمة الأرقام (<span id="cnt-count">0</span>)</div>
+      <div class="contacts-list" id="contacts-list">
+        <div class="empty-state"><div style="font-size:30px;margin-bottom:8px;">📭</div><div>لا توجد جهات اتصال بعد</div></div>
+      </div>
     </div>
+
+    <!-- TAB: Message -->
+    <div id="tab-message" class="panel" style="display:none;">
+      <div class="sec-label">✏️ نص الرسالة</div>
+      <textarea class="msg-textarea" id="message-input" placeholder="اكتب رسالتك هنا... 💬" maxlength="1000" oninput="document.getElementById('char-cnt').textContent=this.value.length"></textarea>
+      <div class="char-count"><span id="char-cnt">0</span>/1000</div>
+      <div style="margin-top:14px;padding:11px 13px;border-radius:12px;background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.15);font-size:12px;color:#c8a030;line-height:1.6;">
+        📌 سيتم إرسال هذه الرسالة إلى <strong id="msg-cnt-label">0</strong> جهة اتصال في الوقت المحدد
+      </div>
+    </div>
+
+    <!-- TAB: Schedule -->
+    <div id="tab-schedule" class="panel" style="display:none;">
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">جهة اتصال</div></div>
+        <div class="stat-box"><div class="stat-val" id="s-sent" style="color:var(--green);">0</div><div class="stat-lbl">تم الإرسال</div></div>
+        <div class="stat-box"><div class="stat-val" id="s-fail" style="color:var(--red);">0</div><div class="stat-lbl">فشل</div></div>
+      </div>
+      <div class="sec-label">📅 تحديد موعد الإرسال</div>
+      <div class="sched-grid">
+        <div class="sched-group"><label>التاريخ</label><input type="date" class="inp" id="sched-date" style="direction:ltr;width:100%;"/></div>
+        <div class="sched-group"><label>الساعة والثانية</label><input type="time" step="1" class="inp" id="sched-time" style="direction:ltr;width:100%;"/></div>
+      </div>
+      <div id="countdown-box" style="display:none;" class="countdown-box">
+        <div class="countdown-time" id="countdown-time">00:00:00</div>
+        <div class="countdown-lbl">⏱ الوقت المتبقي للإرسال</div>
+      </div>
+      <div id="logs-list" class="logs-list" style="display:none;"></div>
+      <div id="sending-indicator" style="display:none;margin-bottom:10px;text-align:center;">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="font-size:12px;color:var(--green);margin-top:6px;">جارٍ الإرسال...</div>
+      </div>
+      <button class="btn-main primary" id="btn-schedule" onclick="handleScheduleBtn()">🚀 بدء الجدولة الآن</button>
+    </div>
+
+    <!-- TAB: QR -->
+    <div id="tab-qr" class="panel" style="display:none;">
+      <div class="sec-label">📷 ربط واتساب</div>
+      <div class="qr-section">
+        <div id="qr-status-text" style="font-size:13px;color:var(--muted);margin-bottom:8px;">جارٍ التحقق من الحالة...</div>
+        <img id="qr-img" src="" alt="QR Code" style="display:none;"/>
+        <button class="qr-refresh" onclick="loadQR()">🔄 تحديث</button>
+      </div>
+      <div style="margin-top:12px;padding:11px 13px;border-radius:12px;background:rgba(37,211,102,.05);border:1px solid rgba(37,211,102,.12);font-size:12px;color:var(--muted);line-height:1.7;">
+        📱 افتح واتساب على هاتفك ← الإعدادات ← الأجهزة المرتبطة ← ربط جهاز ← امسح الكود
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="app-footer">
+      <div class="footer-item">
+        <svg width="18" height="18" viewBox="0 0 24 24"><defs><linearGradient id="igF" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" stroke="url(#igF)" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="4.5" stroke="url(#igF)" stroke-width="1.8" fill="none"/><circle cx="17.5" cy="6.5" r="1" fill="url(#igF)"/></svg>
+        <strong>Ti.9m</strong>
+      </div>
+      <div style="font-size:10px;color:rgba(37,211,102,.3);font-family:Cairo;">© Taha Alajele</div>
+    </div>
+  </div>
+</div>
+
+<!-- Install Banner -->
+<div id="install-banner">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <strong>تنزيل التطبيق</strong>
+    <span>ثبّت WA Scheduler على جهازك</span>
+  </div>
+  <button class="btn-install" onclick="installApp()">تنزيل ⬇️</button>
+  <button class="btn-dismiss" onclick="dismissInstall()">✕</button>
 </div>
 
 <script>
-    const SERVER = 'https://wa-backend-production-1b28.up.railway.app';
+const SERVER = 'https://wa-backend-production-1b28.up.railway.app';
 
-    // 1. إدارة معرف المستخدم (Unique Session ID)
-    let userId = localStorage.getItem('wa_user_id');
-    if (!userId) {
-        userId = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('wa_user_id', userId);
+/* ── SPLASH ── */
+(function(){
+  const firstName="Taha", lastName="Alajele", allChars=[...firstName," ",...lastName];
+  const nameEl=document.getElementById('splash-name');
+  const spans=[];
+  allChars.forEach((ch,i)=>{
+    const s=document.createElement('span');
+    if(ch===' '){s.className='space';s.innerHTML='&nbsp;';}
+    else s.textContent=ch;
+    const ox=(Math.random()-.5)*700, oy=(Math.random()-.5)*700, or=(Math.random()-.5)*720, os=.1+Math.random()*.5;
+    s.style.cssText=`display:inline-block;font-family:'Cinzel Decorative',serif;font-weight:900;font-size:${ch===' '?14:36}px;color:#e8fef0;transform:translate(${ox}px,${oy}px) rotate(${or}deg) scale(${os});opacity:0;transition:none;letter-spacing:${ch===' '?10:2}px;`;
+    nameEl.appendChild(s);
+    spans.push({el:s,ox,oy,or,os});
+  });
+
+  // particles
+  const pc=document.getElementById('particles-splash');
+  for(let i=0;i<35;i++){
+    const d=document.createElement('div');
+    const dx=(Math.random()-.5)*70, dy=(Math.random()-.5)*70;
+    d.className='particle';
+    d.style.cssText=`width:${3+Math.random()*5}px;height:${3+Math.random()*5}px;background:${i%3===0?'#25d366':i%3===1?'#128C7E':'#075E54'};left:${Math.random()*100}%;top:${Math.random()*100}%;--dx:${dx}px;--dy:${dy}px;--dur:${4+Math.random()*5}s;--delay:${Math.random()*4}s;opacity:.45;`;
+    pc.appendChild(d);
+  }
+
+  // rings
+  const rr=document.getElementById('splash-rings');
+  [0,1,2].forEach(i=>{
+    const r=document.createElement('div');
+    r.className='splash-ring';
+    r.style.animationDelay=`${i*.85}s`;
+    rr.appendChild(r);
+  });
+
+  setTimeout(()=>{
+    spans.forEach(({el},i)=>{
+      setTimeout(()=>{
+        el.style.transition=`transform ${.55+i*.07}s cubic-bezier(.34,1.56,.64,1),opacity ${.35+i*.045}s ease`;
+        el.style.transform='translate(0,0) rotate(0) scale(1)';
+        el.style.opacity='1';
+      },i*50);
+    });
+  },400);
+
+  setTimeout(()=>{
+    spans.forEach(({el},i)=>{
+      el.style.animation=`namePulse 2.8s ease infinite ${i*.06}s`;
+      el.style.textShadow='0 0 22px #25d36699,0 0 55px #25d36633';
+    });
+    document.getElementById('splash-shimmer').style.display='block';
+    document.getElementById('splash-sub').style.display='block';
+  },2200);
+
+  setTimeout(()=>{
+    const c=document.getElementById('splash-contacts');
+    c.style.display='flex';
+    setTimeout(()=>c.style.opacity='1',50);
+  },3500);
+
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(()=>{
+      document.getElementById('splash').style.display='none';
+      document.getElementById('app').classList.add('show');
+      initApp();
+    },1000);
+  },6000);
+})();
+
+/* ── APP ── */
+let contacts=[], schedStatus='idle', timerRef=null, countRef=null, countdownVal=null, logs=[];
+
+function initApp(){
+  // particles
+  const pc=document.getElementById('particles-app');
+  for(let i=0;i<18;i++){
+    const d=document.createElement('div');
+    d.className='fp';
+    d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${3+Math.random()*4}s;--delay:${Math.random()*5}s;`;
+    pc.appendChild(d);
+  }
+  // default date/time
+  const now=new Date(), pad=n=>String(n).padStart(2,'0');
+  document.getElementById('sched-date').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('sched-time').value=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  checkServerStatus();
+  setInterval(checkServerStatus, 15000);
+}
+
+async function checkServerStatus(){
+  const banner=document.getElementById('status-banner');
+  const txt=document.getElementById('status-text');
+  const dot=banner.querySelector('.status-dot');
+  try{
+    const r=await fetch(`${SERVER}/status`,{signal:AbortSignal.timeout(5000)});
+    const d=await r.json();
+    if(d.ready){
+      banner.style.background='rgba(37,211,102,.08)';
+      banner.style.border='1px solid rgba(37,211,102,.2)';
+      dot.style.background='var(--green)';
+      txt.style.color='var(--green)';
+      txt.textContent='✅ واتساب متصل وجاهز للإرسال';
+    } else {
+      banner.style.background='rgba(240,180,41,.08)';
+      banner.style.border='1px solid rgba(240,180,41,.2)';
+      dot.style.background='var(--yellow)';
+      txt.style.color='var(--yellow)';
+      txt.textContent=d.hasQR?'⚠️ واتساب غير مربوط — امسح QR من تبويب QR':'⏳ السيرفر يعمل — في انتظار واتساب';
     }
+  }catch(e){
+    banner.style.background='rgba(224,82,82,.08)';
+    banner.style.border='1px solid rgba(224,82,82,.2)';
+    dot.style.background='var(--red)';
+    txt.style.color='var(--red)';
+    txt.textContent='❌ تعذّر الاتصال بالسيرفر';
+  }
+}
 
-    // تبديل الصفحات
-    function showPage(pageId, btn) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        btn.classList.add('active');
-        if(pageId === 'qr-page') loadQR();
+async function loadQR(){
+  const qImg=document.getElementById('qr-img');
+  const qTxt=document.getElementById('qr-status-text');
+  qTxt.textContent='جارٍ التحقق...';
+  qImg.style.display='none';
+  try{
+    const r=await fetch(`${SERVER}/status`);
+    const d=await r.json();
+    if(d.ready){
+      qTxt.textContent='✅ واتساب متصل بالفعل! لا تحتاج لمسح QR';
+    } else if(d.hasQR){
+      const qr=await fetch(`${SERVER}/qr`);
+      const html=await qr.text();
+      const match=html.match(/src="([^"]+qrserver[^"]+)"/);
+      if(match){
+        qImg.src=match[1];
+        qImg.style.display='block';
+        qTxt.textContent='امسح هذا الكود بواتساب';
+      } else {
+        qTxt.textContent='⚠️ تعذّر تحميل QR، اضغط تحديث';
+      }
+    } else {
+      qTxt.textContent='⏳ السيرفر يعمل — QR لم يتولّد بعد، اضغط تحديث';
     }
+  }catch(e){
+    qTxt.textContent='❌ تعذّر الاتصال بالسيرفر';
+  }
+}
 
-    // 2. فحص حالة السيرفر والاتصال للمستخدم الحالي
-    async function checkStatus() {
-        const txt = document.getElementById('status-text');
-        const dot = document.querySelector('.status-dot');
-        try {
-            const r = await fetch(`${SERVER}/status?id=${userId}`);
-            const d = await r.json();
-            if (d.ready) {
-                txt.textContent = 'متصل وجاهز للإرسال';
-                dot.style.background = 'var(--green)';
-            } else {
-                txt.textContent = d.hasQR ? 'بانتظار مسح كود QR' : 'السيرفر يعمل (غير متصل)';
-                dot.style.background = 'var(--yellow)';
-            }
-        } catch (e) {
-            txt.textContent = 'تعذر الاتصال بالسيرفر';
-            dot.style.background = 'red';
-        }
+function switchTab(name, btn){
+  ['contacts','message','schedule','qr'].forEach(t=>{
+    document.getElementById(`tab-${t}`).style.display='none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`tab-${name}`).style.display='block';
+  btn.classList.add('active');
+  if(name==='qr') loadQR();
+  if(name==='message') document.getElementById('msg-cnt-label').textContent=contacts.length;
+}
+
+function renderContacts(){
+  const list=document.getElementById('contacts-list');
+  const count=contacts.length;
+  document.getElementById('cnt-badge').textContent=count;
+  document.getElementById('cnt-count').textContent=count;
+  document.getElementById('s-total').textContent=count;
+  if(count===0){
+    list.innerHTML='<div class="empty-state"><div style="font-size:30px;margin-bottom:8px;">📭</div><div>لا توجد جهات اتصال بعد</div></div>';
+    return;
+  }
+  list.innerHTML=contacts.map(c=>`
+    <div class="contact-item">
+      <div class="avatar">${c.avatar}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-phone">${c.phone}</div>
+      </div>
+      <button class="btn-remove" onclick="removeContact(${c.id})">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function addContact(){
+  const name=document.getElementById('new-name').value.trim();
+  const phone=document.getElementById('new-phone').value.trim();
+  if(!phone){showToast('⚠️ الرجاء إدخال رقم الهاتف','error');return;}
+  contacts.push({id:Date.now(),name:name||'بدون اسم',phone,avatar:(name?name[0]:phone[0]).toUpperCase()});
+  document.getElementById('new-name').value='';
+  document.getElementById('new-phone').value='';
+  renderContacts();
+}
+
+function removeContact(id){
+  contacts=contacts.filter(c=>c.id!==id);
+  renderContacts();
+}
+
+function handleScheduleBtn(){
+  if(schedStatus==='scheduled'){cancelSchedule();return;}
+  const msg=document.getElementById('message-input').value.trim();
+  if(!msg){showToast('⚠️ الرجاء كتابة الرسالة أولاً','error');return;}
+  if(!contacts.length){showToast('⚠️ الرجاء إضافة جهات اتصال','error');return;}
+  const dt=new Date(`${document.getElementById('sched-date').value}T${document.getElementById('sched-time').value}`);
+  const diff=dt-new Date();
+  if(diff<0){showToast('⚠️ الوقت في الماضي، اختر وقتاً مستقبلياً','error');return;}
+  schedStatus='scheduled';
+  logs=[];
+  document.getElementById('logs-list').style.display='none';
+  document.getElementById('logs-list').innerHTML='';
+  document.getElementById('s-sent').textContent='0';
+  document.getElementById('s-fail').textContent='0';
+  document.getElementById('btn-schedule').className='btn-main danger';
+  document.getElementById('btn-schedule').textContent='🚫 إلغاء الجدولة';
+  let r=Math.floor(diff/1000); countdownVal=r;
+  document.getElementById('countdown-box').style.display='block';
+  document.getElementById('countdown-time').textContent=fmt(r);
+  countRef=setInterval(()=>{r--;countdownVal=r;document.getElementById('countdown-time').textContent=fmt(r);if(r<=0)clearInterval(countRef);},1000);
+  timerRef=setTimeout(()=>{clearInterval(countRef);document.getElementById('countdown-box').style.display='none';sendMessages();},diff);
+}
+
+function cancelSchedule(){
+  clearTimeout(timerRef);clearInterval(countRef);
+  schedStatus='idle';countdownVal=null;
+  document.getElementById('countdown-box').style.display='none';
+  document.getElementById('btn-schedule').className='btn-main primary';
+  document.getElementById('btn-schedule').textContent='🚀 بدء الجدولة الآن';
+}
+
+async function sendMessages(){
+  schedStatus='sending';
+  document.getElementById('sending-indicator').style.display='block';
+  document.getElementById('logs-list').style.display='flex';
+  document.getElementById('btn-schedule').style.display='none';
+  const msg=document.getElementById('message-input').value;
+  let sent=0, failed=0;
+  for(let i=0;i<contacts.length;i++){
+    const c=contacts[i];
+    try{
+      const res=await fetch(`${SERVER}/send-message`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({phone:c.phone,message:msg})
+      });
+      const data=await res.json();
+      const ok=data.success;
+      if(ok)sent++;else failed++;
+      addLog(c,ok?'sent':'failed');
+    }catch(e){
+      failed++;
+      addLog(c,'failed');
     }
+    document.getElementById('s-sent').textContent=sent;
+    document.getElementById('s-fail').textContent=failed;
+    await new Promise(r=>setTimeout(r,700));
+  }
+  schedStatus='sent';
+  document.getElementById('sending-indicator').style.display='none';
+  document.getElementById('btn-schedule').style.display='flex';
+  document.getElementById('btn-schedule').className='btn-main primary';
+  document.getElementById('btn-schedule').textContent='🚀 بدء الجدولة الآن';
+  showToast(`✨ تم! أُرسل ${sent} رسالة${failed?` — فشل ${failed}`:''}`, sent>0?'success':'error');
+}
 
-    // 3. تحميل كود QR الخاص بالمستخدم
-    async function loadQR() {
-        const qImg = document.getElementById('qr-img');
-        const qTxt = document.getElementById('qr-status-text');
-        qTxt.textContent = 'جارٍ الطلب...';
-        qImg.style.display = 'none';
-        try {
-            const r = await fetch(`${SERVER}/qr?id=${userId}`);
-            const html = await r.text();
-            // استخراج رابط الصورة من الـ HTML البسيط المرسل من السيرفر
-            const match = html.match(/src="([^"]+)"/);
-            if (match) {
-                qImg.src = match[1];
-                qImg.style.display = 'block';
-                qTxt.textContent = 'امسح الكود من تطبيق واتساب';
-            } else {
-                qTxt.textContent = 'لم يتم إنشاء QR بعد، انتظر ثوانٍ وجرب مرة أخرى';
-            }
-        } catch (e) {
-            qTxt.textContent = 'خطأ في الاتصال';
-        }
-    }
+function addLog(c,status){
+  const list=document.getElementById('logs-list');
+  const div=document.createElement('div');
+  div.className=`log-item ${status}`;
+  div.innerHTML=`<span>${status==='sent'?'✅':'❌'}</span><span style="flex:1">${c.name}</span><span style="direction:ltr;font-size:11px;">${c.phone}</span><span style="font-size:11px;">${new Date().toLocaleTimeString('ar-IQ')}</span>`;
+  list.appendChild(div);
+  list.scrollTop=list.scrollHeight;
+}
 
-    // 4. إرسال الرسائل الجماعية باستخدام المعرف
-    async function sendBulk() {
-        const numbers = document.getElementById('numbers-input').value.split('\n').filter(n => n.trim() !== '');
-        const message = document.getElementById('message-input').value;
-        const logs = document.getElementById('logs');
-        
-        if (numbers.length === 0 || !message) return alert('يرجى إدخال الأرقام والرسالة');
+function fmt(s){
+  if(s===null||s<0)return'';
+  return`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
 
-        logs.innerHTML = 'بدء الإرسال...<br>';
-        for (let num of numbers) {
-            try {
-                const res = await fetch(`${SERVER}/send-message`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: userId, phone: num.trim(), message: message })
-                });
-                const data = await res.json();
-                logs.innerHTML += (data.success ? `✅ تم الإرسال لـ ${num}` : `❌ فشل لـ ${num}: ${data.error}`) + '<br>';
-            } catch (e) {
-                logs.innerHTML += `❌ خطأ في الاتصال أثناء الإرسال لـ ${num}<br>`;
-            }
-        }
-        logs.innerHTML += '<b>انتهت العملية.</b>';
-    }
+function showToast(msg,type='success'){
+  const old=document.querySelector('.toast');
+  if(old)old.remove();
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
 
-    // فحص الحالة تلقائياً كل 10 ثوانٍ
-    setInterval(checkStatus, 10000);
-    checkStatus();
+/* ── PWA ── */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
+});
+function installApp(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;dismissInstall();});}
+}
+function dismissInstall(){document.getElementById('install-banner').classList.remove('show');}
+
+/* Service Worker registration */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
 </script>
-
 </body>
 </html>
