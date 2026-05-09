@@ -12,26 +12,20 @@ let currentQR = null;
 let isClientReady = false;
 
 // الحصول على مسار Chromium من puppeteer تلقائياً
-const chromiumPath = puppeteer.executablePath();
-console.log('Chromium path:', chromiumPath);
-
 const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: './.wwebjs_auth'
     }),
     puppeteer: {
-        executablePath: chromiumPath,
         headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
+            '--disable-gpu',
             '--no-zygote',
-            '--single-process',
-            '--disable-gpu'
-        ]
+            '--single-process'
+        ],
     }
 });
 
