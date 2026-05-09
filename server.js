@@ -63,8 +63,6 @@ client.initialize().catch(err => {
     console.error('Failed to initialize:', err);
 });
 
-const path = require('path');
-
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
